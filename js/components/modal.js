@@ -1,5 +1,14 @@
 import { allHots, activeIdx, setActiveIdx } from '../config/rooms.js';
 
+const MP4_PRIORITY_BASES = new Set([
+  'videos/architects-office/chateau-construction',
+  'videos/architects-office/architects-house'
+]);
+
+function shouldUseMp4First(path) {
+  return MP4_PRIORITY_BASES.has(path.replace(/\.mp4$/i, '').replace(/\.webm$/i, ''));
+}
+
 export function openModal(idx) {
   setActiveIdx(idx);
   _fill(allHots[idx]);
@@ -56,7 +65,25 @@ function _fill(el) {
     ph.style.display = 'none';
   } else if (/\.(mp4|webm)$/i.test(url)) {
     const vid = document.createElement('video');
-    vid.src = url;
+    const basePath = url.replace(/\.mp4$/i, '').replace(/\.webm$/i, '');
+    const mp4Url = basePath + '.mp4';
+    const webmUrl = basePath + '.webm';
+    const mp4First = shouldUseMp4First(url);
+    const first = document.createElement('source');
+    const second = document.createElement('source');
+    if (mp4First) {
+      first.src = mp4Url;
+      first.type = 'video/mp4';
+      second.src = webmUrl;
+      second.type = 'video/webm';
+    } else {
+      first.src = webmUrl;
+      first.type = 'video/webm';
+      second.src = mp4Url;
+      second.type = 'video/mp4';
+    }
+    vid.appendChild(first);
+    vid.appendChild(second);
     vid.controls = true;
     vid.autoplay = true;
     med.insertBefore(vid, ph);

@@ -8,6 +8,15 @@ let sc;
 let offX;
 let offY;
 
+const MP4_PRIORITY_BASES = new Set([
+  'videos/architects-office/chateau-construction',
+  'videos/architects-office/architects-house'
+]);
+
+function shouldUseMp4First(path) {
+  return MP4_PRIORITY_BASES.has(path.replace(/\.mp4$/i, '').replace(/\.webm$/i, ''));
+}
+
 export function loadRoom(roomId) {
   const room = ROOMS[roomId];
   if (!room) return;
@@ -24,14 +33,20 @@ export function loadRoom(roomId) {
   if (room.video) {
     const basePath = room.video.replace(/\.mp4$/, '');
     vid.poster = basePath + '-poster.jpg';
+    const mp4First = shouldUseMp4First(room.video);
     const mp4Src = document.createElement('source');
     mp4Src.src = room.video;
     mp4Src.type = 'video/mp4';
-    vid.appendChild(mp4Src);
     const webmSrc = document.createElement('source');
     webmSrc.src = basePath + '.webm';
     webmSrc.type = 'video/webm';
-    vid.appendChild(webmSrc);
+    if (mp4First) {
+      vid.appendChild(mp4Src);
+      vid.appendChild(webmSrc);
+    } else {
+      vid.appendChild(webmSrc);
+      vid.appendChild(mp4Src);
+    }
     vid.muted = !(roomId === 'arch' || roomId === 'brand');
     vid.load();
   }
