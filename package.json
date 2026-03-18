@@ -1,0 +1,9 @@
+{
+  "name": "moongi-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Moongi Studio — AI video creator portfolio",
+  "scripts": {
+    "dev": "npx serve ."
+  }
+}
